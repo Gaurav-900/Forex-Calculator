@@ -13,6 +13,10 @@ Modern, single-file, responsive web app to estimate forex and metals trade profi
 - **Accessible**: Labeled controls, keyboard-submit (Enter), and aria for loader.
 - **Polished UX**: Navy & Gold theme, focus states, press effect, spinner, result coloring.
 
+## Try
+- This Website is Deployed using Netlify
+- **Checkout**: https://gs-forex-calculator.netlify.app/
+
 ## Tech Stack
 - **Frontend**: HTML5, CSS3, JavaScript (ES6+)
 - **Fonts**: Google Fonts `Inter`
@@ -24,14 +28,6 @@ Forex calculatoe/
   ├─ index.html      # Single-file application
   └─ README.md       # This file
 ```
-
-## Getting Started
-### Run locally
-- Open `index.html` directly in your browser (double-click) – no build or server required.
-
-### Deploy
-- GitHub Pages: push the repo and set the Pages source to the root folder containing `index.html`.
-- Any static host works (Netlify, Vercel static, S3, etc.).
 
 ## Usage
 1. Choose your `Account Currency`.
@@ -128,5 +124,6 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
 
 
