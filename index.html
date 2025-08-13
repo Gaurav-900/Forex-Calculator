@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Forex Profit & Loss Calculator</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+	<style>
+		:root{
+			--bg:#0a192f; /* Dark Navy */
+			--card:#172a45; /* Lighter Navy */
+			--border:#303C55; /* Navy Gray */
+			--text:#ccd6f6; /* Light Slate */
+			--muted:#8892b0; /* Lighter Gray */
+			--accent:#FFD700; /* Gold */
+			--accentText:#0a192f; /* Dark Navy */
+			--profit:#64ffda; /* Bright Green */
+			--loss:#ff6489; /* Bright Red */
+			--shadow: 0 10px 25px rgba(2,12,27,0.6);
+		}
+
+		html,body{height:100%;}
+		body{
+			margin:0;
+			font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif;
+			background:var(--bg);
+			color:var(--text);
+			display:flex;
+			align-items:center;
+			justify-content:center;
+			padding:24px;
+		}
+
+		.container{
+			width:100%;
+			max-width:960px;
+			background:var(--card);
+			border:1px solid var(--border);
+			border-radius:16px;
+			box-shadow:var(--shadow);
+			padding:28px;
+		}
+
+		.header{
+			display:flex;
+			align-items:center;
+			justify-content:space-between;
+			gap:16px;
+			margin-bottom:18px;
+		}
+
+		.title{
+			margin:0;
+			font-size:22px;
+			font-weight:700;
+			letter-spacing:0.2px;
+		}
+
+		.subtitle{color:var(--muted); font-size:13px; margin-top:4px;}
+
+		.grid{
+			display:grid;
+			gap:16px;
+			grid-template-columns:1fr;
+		}
+
+		@media (min-width: 820px){
+			.grid{
+				grid-template-columns:repeat(2,1fr);
+			}
+		}
+
+		.form-group{display:flex; flex-direction:column; gap:8px;}
+		.label{font-size:13px; color:var(--text);}
+		.hint{font-size:12px; color:var(--muted);}
+
+		.input,
+		.select{
+			width:100%;
+			background:var(--bg);
+			color:var(--text);
+			border:1px solid var(--border);
+			border-radius:10px;
+			padding:12px;
+			outline:none;
+			transition:border-color 0.2s ease, box-shadow 0.2s ease;
+		}
+		.input::placeholder{color:var(--muted);} 
+		.select{appearance:none;}
+		.input:focus,
+		.select:focus{border-color:var(--accent); box-shadow:0 0 0 3px rgba(255,215,0,0.15);} 
+
+		.row{display:flex; gap:12px;}
+		.row > *{flex:1;}
+
+		.button{
+			margin-top:8px;
+			width:100%;
+			background:var(--accent);
+			color:var(--accentText);
+			border:none;
+			border-radius:12px;
+			padding:14px 16px;
+			font-weight:700;
+			cursor:pointer;
+			transition:opacity 0.15s ease, transform 0.06s ease;
+		}
+		.button:hover{opacity:0.92;}
+		.button:active{transform:scale(0.98);} 
+		.button:disabled{opacity:0.6; cursor:not-allowed;}
+
+		.result{
+			margin-top:20px;
+			border-top:1px solid var(--border);
+			padding-top:18px;
+		}
+		.result-line{display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; gap:12px;}
+		.result-label{color:var(--muted); font-size:13px;}
+		.result-value{font-size:18px; font-weight:700;}
+		.result-value.neutral{color:var(--text);} 
+		.result-value.profit{color:var(--profit);} 
+		.result-value.loss{color:var(--loss);} 
+
+		.spinner{display:none; align-items:center; gap:10px; margin-top:12px; color:var(--muted); font-size:14px;}
+		.spinner .dot{
+			width:8px; height:8px; border-radius:50%; background:var(--accent);
+			animation:bounce 0.9s infinite ease-in-out;
+		}
+		.spinner .dot:nth-child(2){animation-delay:0.15s;}
+		.spinner .dot:nth-child(3){animation-delay:0.3s;}
+		@keyframes bounce{0%,80%,100%{transform:scale(0);}40%{transform:scale(1);} }
+
+		.footer{margin-top:14px; color:var(--muted); font-size:12px;}
+		.badge{display:inline-block; border:1px solid var(--border); padding:4px 8px; border-radius:999px; font-size:11px; color:var(--muted);} 
+	</style>
+</head>
+<body>
+	<div class="container">
+		<div class="header">
+			<div>
+				<h1 class="title">Forex Profit & Loss Calculator</h1>
+				<div class="subtitle">Modern, responsive, navy & gold themed P/L calculator with live FX conversion</div>
+			</div>
+			<span class="badge">ExchangeRate-API v6</span>
+		</div>
+
+		<div class="grid">
+			<div class="form-group">
+				<label class="label" for="accountCurrency">Account Currency</label>
+				<select id="accountCurrency" class="select" aria-label="Account Currency">
+					<option value="USD">USD — US Dollar</option>
+					<option value="EUR">EUR — Euro</option>
+					<option value="GBP">GBP — British Pound</option>
+					<option value="JPY">JPY — Japanese Yen</option>
+					<option value="AUD">AUD — Australian Dollar</option>
+					<option value="CAD">CAD — Canadian Dollar</option>
+					<option value="CHF">CHF — Swiss Franc</option>
+					<option value="NZD">NZD — New Zealand Dollar</option>
+				</select>
+				<div class="hint">Your trading account base currency</div>
+			</div>
+
+			<div class="form-group">
+				<label class="label">Currency Pair</label>
+				<div class="row">
+					<select id="baseCcy" class="select" aria-label="Base currency">
+						<option value="XAU">XAU</option>
+						<option value="XAG">XAG</option>
+						<option value="EUR">EUR</option>
+						<option value="USD">USD</option>
+						<option value="GBP">GBP</option>
+						<option value="JPY">JPY</option>
+						<option value="AUD">AUD</option>
+						<option value="CAD">CAD</option>
+						<option value="CHF">CHF</option>
+						<option value="NZD">NZD</option>
+					</select>
+					<select id="quoteCcy" class="select" aria-label="Quote currency">
+						<option value="USD">USD</option>
+						<option value="EUR">EUR</option>
+						<option value="GBP">GBP</option>
+						<option value="JPY">JPY</option>
+						<option value="AUD">AUD</option>
+						<option value="CAD">CAD</option>
+						<option value="CHF">CHF</option>
+						<option value="NZD">NZD</option>
+					</select>
+				</div>
+				<div class="hint">Select base and quote to form the pair (e.g., EUR + USD = EUR/USD)</div>
+			</div>
+
+			<div class="form-group">
+				<label class="label" for="positionSize">Position Size</label>
+				<div class="row">
+					<input id="positionSize" class="input" type="number" inputmode="decimal" min="0" step="0.0001" placeholder="e.g., 1" />
+					<select id="sizeType" class="select" aria-label="Size type">
+						<option value="lots">Standard Lots (100,000)</option>
+						<option value="mini">Mini Lots (10,000)</option>
+						<option value="micro">Micro Lots (1,000)</option>
+						<option value="units">Units</option>
+					</select>
+				</div>
+				<div class="hint">Enter trade size and units</div>
+			</div>
+
+			<div class="form-group">
+				<label class="label">Direction</label>
+				<div class="row">
+					<select id="direction" class="select" aria-label="Direction">
+						<option value="buy">Buy (Long)</option>
+						<option value="sell">Sell (Short)</option>
+					</select>
+					<div style="flex:2; display:flex; gap:12px;">
+						<input id="entryPrice" class="input" type="number" inputmode="decimal" min="0" step="0.00001" placeholder="Entry price" />
+						<input id="exitPrice" class="input" type="number" inputmode="decimal" min="0" step="0.00001" placeholder="Exit price" />
+					</div>
+				</div>
+				<div class="hint">Set direction, entry and exit prices</div>
+			</div>
+		</div>
+
+		<button id="calcBtn" class="button">Calculate</button>
+		<div id="loading" class="spinner" aria-live="polite" aria-busy="false">
+			<span class="dot"></span><span class="dot"></span><span class="dot"></span>
+			<span>Fetching live rates…</span>
+		</div>
+
+		<div class="result" id="result">
+			<div class="result-line">
+				<span class="result-label">P/L in account currency</span>
+				<span id="pnlAccount" class="result-value neutral">—</span>
+			</div>
+			<div class="result-line">
+				<span class="result-label">P/L in quote currency</span>
+				<span id="pnlQuote" class="result-value neutral">—</span>
+			</div>
+			<div class="result-line">
+				<span class="result-label">Conversion rate used</span>
+				<span id="rateUsed" class="result-value neutral">—</span>
+			</div>
+			<div class="footer">This tool converts the raw P/L from the pair's quote currency to your account currency using live rates from ExchangeRate-API.</div>
+		</div>
+	</div>
+
+	<script>
+		(function(){
+			const getEl = (id) => document.getElementById(id);
+			const accountCurrencyEl = getEl('accountCurrency');
+			const baseCcyEl = getEl('baseCcy');
+			const quoteCcyEl = getEl('quoteCcy');
+			const positionSizeEl = getEl('positionSize');
+			const sizeTypeEl = getEl('sizeType');
+			const directionEl = getEl('direction');
+			const entryPriceEl = getEl('entryPrice');
+			const exitPriceEl = getEl('exitPrice');
+			const calcBtn = getEl('calcBtn');
+			const loadingEl = getEl('loading');
+			const pnlAccountEl = getEl('pnlAccount');
+			const pnlQuoteEl = getEl('pnlQuote');
+			const rateUsedEl = getEl('rateUsed');
+
+			// Default values for quick demo
+			baseCcyEl.value = 'EUR';
+			quoteCcyEl.value = 'USD';
+			accountCurrencyEl.value = 'USD';
+			positionSizeEl.value = '1';
+			sizeTypeEl.value = 'lots';
+			entryPriceEl.value = '1.08500';
+			exitPriceEl.value = '1.09500';
+
+			const currencyToSymbol = (code) => {
+				const map = { USD:'$', EUR:'€', GBP:'£', JPY:'¥', AUD:'A$', CAD:'C$', CHF:'CHF', NZD:'NZ$' };
+				return map[code] || code + ' ';
+			};
+
+			const formatMoney = (amount, ccy) => {
+				try{
+					return new Intl.NumberFormat('en-US', { style:'currency', currency:ccy, maximumFractionDigits:2 }).format(amount);
+				}catch(e){
+					const symbol = currencyToSymbol(ccy);
+					return symbol + (amount < 0 ? '-' : '') + Math.abs(amount).toFixed(2);
+				}
+			};
+
+			const setLoading = (isLoading) => {
+				loadingEl.style.display = isLoading ? 'flex' : 'none';
+				loadingEl.setAttribute('aria-busy', String(isLoading));
+				calcBtn.disabled = isLoading;
+			};
+
+			const computeUnits = (size, type) => {
+				const n = Number(size);
+				if (!isFinite(n) || n <= 0) return 0;
+				const base = baseCcyEl.value;
+				let unitsPerLot = 100000;
+				let unitsPerMini = 10000;
+				let unitsPerMicro = 1000;
+				if (base === 'XAU') { unitsPerLot = 100; unitsPerMini = 10; unitsPerMicro = 1; }
+				else if (base === 'XAG') { unitsPerLot = 5000; unitsPerMini = 500; unitsPerMicro = 50; }
+				switch(type){
+					case 'lots': return n * unitsPerLot;
+					case 'mini': return n * unitsPerMini;
+					case 'micro': return n * unitsPerMicro;
+					case 'units': return n;
+					default: return 0;
+				}
+			};
+
+			const updateSizeLabels = () => {
+				const base = baseCcyEl.value;
+				const opts = Array.from(sizeTypeEl.options);
+				if (base === 'XAU'){
+					opts.find(o=>o.value==='lots').textContent = 'Standard Lots (100 oz)';
+					opts.find(o=>o.value==='mini').textContent = 'Mini Lots (10 oz)';
+					opts.find(o=>o.value==='micro').textContent = 'Micro Lots (1 oz)';
+				}else if (base === 'XAG'){
+					opts.find(o=>o.value==='lots').textContent = 'Standard Lots (5,000 oz)';
+					opts.find(o=>o.value==='mini').textContent = 'Mini Lots (500 oz)';
+					opts.find(o=>o.value==='micro').textContent = 'Micro Lots (50 oz)';
+				}else{
+					opts.find(o=>o.value==='lots').textContent = 'Standard Lots (100,000)';
+					opts.find(o=>o.value==='mini').textContent = 'Mini Lots (10,000)';
+					opts.find(o=>o.value==='micro').textContent = 'Micro Lots (1,000)';
+				}
+			};
+
+			const validate = () => {
+				const errs = [];
+				if (baseCcyEl.value === quoteCcyEl.value) errs.push('Base and quote currencies must differ.');
+				const units = computeUnits(positionSizeEl.value, sizeTypeEl.value);
+				if (units <= 0) errs.push('Position size must be greater than 0.');
+				const entry = Number(entryPriceEl.value);
+				const exit = Number(exitPriceEl.value);
+				if (!isFinite(entry) || entry <= 0) errs.push('Entry price must be a positive number.');
+				if (!isFinite(exit) || exit <= 0) errs.push('Exit price must be a positive number.');
+				return { errs, units, entry, exit };
+			};
+
+			const showResults = ({ pnlAccount, pnlQuote, rateUsed, accountCcy, quoteCcy }) => {
+				const cls = pnlAccount > 0 ? 'profit' : pnlAccount < 0 ? 'loss' : 'neutral';
+				pnlAccountEl.className = 'result-value ' + cls;
+				pnlAccountEl.textContent = isFinite(pnlAccount) ? formatMoney(pnlAccount, accountCcy) : '—';
+				pnlQuoteEl.className = 'result-value ' + (pnlQuote>0?'profit':pnlQuote<0?'loss':'neutral');
+				pnlQuoteEl.textContent = isFinite(pnlQuote) ? formatMoney(pnlQuote, quoteCcy) : '—';
+				rateUsedEl.className = 'result-value neutral';
+				rateUsedEl.textContent = rateUsed ? `1 ${quoteCcy} = ${rateUsed.toFixed(6)} ${accountCcy}` : '—';
+			};
+
+			const handleError = (msg) => {
+				pnlAccountEl.className = 'result-value neutral';
+				pnlAccountEl.textContent = msg;
+				pnlQuoteEl.className = 'result-value neutral';
+				pnlQuoteEl.textContent = '—';
+				rateUsedEl.className = 'result-value neutral';
+				rateUsedEl.textContent = '—';
+			};
+
+			const calc = async () => {
+				const { errs, units, entry, exit } = validate();
+				if (errs.length){ handleError(errs[0]); return; }
+
+				const base = baseCcyEl.value;
+				const quote = quoteCcyEl.value;
+				const account = accountCurrencyEl.value;
+				const isBuy = directionEl.value === 'buy';
+
+				const diff = isBuy ? (exit - entry) : (entry - exit);
+				const pnlQuote = diff * units; // in quote currency
+
+				if (account === quote){
+					showResults({ pnlAccount: pnlQuote, pnlQuote, rateUsed: 1, accountCcy: account, quoteCcy: quote });
+					return;
+				}
+
+				try{
+					setLoading(true);
+					// Use ExchangeRate-API v6 open endpoint; base is quote currency
+					const url = `https://open.er-api.com/v6/latest/${encodeURIComponent(quote)}`;
+					const res = await fetch(url, { cache: 'no-store' });
+					if (!res.ok) throw new Error('Network error fetching rates');
+					const data = await res.json();
+					if (data.result !== 'success' || !data.rates || !data.rates[account]){
+						throw new Error('Rate unavailable for ' + account);
+					}
+					const rate = Number(data.rates[account]); // 1 quote -> rate account
+					const pnlAccount = pnlQuote * rate;
+					showResults({ pnlAccount, pnlQuote, rateUsed: rate, accountCcy: account, quoteCcy: quote });
+				} catch(err){
+					handleError(err.message || 'Failed to fetch rates');
+				} finally{
+					setLoading(false);
+				}
+			};
+
+			calcBtn.addEventListener('click', calc);
+			baseCcyEl.addEventListener('change', updateSizeLabels);
+			[accountCurrencyEl, baseCcyEl, quoteCcyEl, positionSizeEl, sizeTypeEl, directionEl, entryPriceEl, exitPriceEl]
+				.forEach(el => el.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); calc(); }}));
+			updateSizeLabels();
+		})();
+	</script>
+</body>
+</html>
+
+
