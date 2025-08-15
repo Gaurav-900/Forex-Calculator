@@ -1,17 +1,19 @@
-## Forex Profit & Loss Calculator
+# Forex Trading Calculators
 
-Modern, single-file, responsive web app to estimate forex and metals trade profit/loss in your account currency using live exchange rates. Built with semantic HTML5, modern CSS, and vanilla JavaScript. Theme: Navy Blue & Gold.
+This project contains two essential forex trading calculators in a single, responsive web application:
+1.  **Profit & Loss Calculator**: Estimate the P/L for a trade in your account currency.
+2.  **Lot Size Calculator**: Determine the appropriate position size based on your risk tolerance.
+
+Built with semantic HTML5, modern CSS, and vanilla JavaScript, this single-file application is easy to use and modify. It features a clean, navy and gold themed UI that is both desktop and mobile-friendly.
 
 ### Key Features
-- **Single-file app**: All HTML, CSS, and JS in `index.html`.
-- **Live FX conversion**: Uses ExchangeRate-API v6 to convert P/L to your account currency.
-- **FX and Metals support**: Major currencies and metals pairs like `XAUUSD`, `XAGUSD`.
-- **Lot presets**:
-  - FX: 1 lot = 100,000 units; mini = 10,000; micro = 1,000
-  - Metals: XAU 1 lot = 100 oz (mini 10, micro 1), XAG 1 lot = 5,000 oz (mini 500, micro 50)
-- **Responsive UI**: Mobile-first layout; form stacks on small screens.
-- **Accessible**: Labeled controls, keyboard-submit (Enter), and aria for loader.
-- **Polished UX**: Navy & Gold theme, focus states, press effect, spinner, result coloring.
+- **Dual Calculators**: Profit & Loss and Lot Size calculators in one interface.
+- **Live FX Conversion**: Uses the ExchangeRate-API v6 to provide real-time exchange rates for accurate calculations.
+- **Broad Instrument Support**: Works with major forex pairs and commodities like Gold (XAU) and Silver (XAG).
+- **Flexible Unit Sizing**: Supports standard, mini, and micro lots, as well as custom unit sizes.
+- **Risk Management**: The Lot Size Calculator helps you manage risk by calculating position size based on account balance, risk percentage, and stop-loss.
+- **Responsive Design**: A clean, modern interface that adapts to any screen size.
+- **Single-File Application**: All HTML, CSS, and JavaScript are contained in a single `index.html` file for simplicity.
 
 ## Try
 - This Website is Deployed using Netlify
@@ -39,7 +41,11 @@ Forex calculatoe/
 
 The app computes raw P/L in the pair’s quote currency and converts it to your account currency using live rates.
 
-## How It Calculates P/L
+## How It Works
+
+### Profit & Loss Calculator
+
+This calculator determines the profit or loss from a trade based on the entry and exit prices, trade size, and direction.
 Let:
 - `base` = base instrument (e.g., EUR or XAU)
 - `quote` = quote currency (e.g., USD)
@@ -63,6 +69,33 @@ Steps:
 Notes:
 - This calculator uses price difference × units instead of pip abstractions to naturally support both FX and metals.
 - Precision is handled by standard JavaScript number arithmetic and formatted to two decimals for display.
+
+### Lot Size Calculator
+
+This calculator helps you determine the appropriate position size (in lots) based on your desired risk parameters.
+
+Let:
+- `accountBalance` = Your total account equity
+- `riskPercentage` = The percentage of your account you are willing to risk (e.g., 1%)
+- `entryPrice` = The price at which you enter the trade
+- `stopLossPrice` = The price at which you will exit the trade if it moves against you
+- `accountCurrency` = The currency of your trading account
+- `baseCcy` = The base currency of the pair being traded (e.g., EUR)
+- `quoteCcy` = The quote currency of the pair being traded (e.g., USD)
+
+Steps:
+1.  **Calculate Risk Amount**: The total amount you are willing to risk in your account currency.
+    - `riskAmount = accountBalance * (riskPercentage / 100)`
+2.  **Determine Contract Size**: The number of units in one standard lot for the traded instrument.
+    - Forex: 100,000 units
+    - Gold (XAU): 100 troy ounces
+    - Silver (XAG): 5,000 troy ounces
+3.  **Calculate Stop-Loss in Pips**: The distance between your entry and stop-loss price.
+    - `stopLossPips = |entryPrice - stopLossPrice| / tickValue`
+4.  **Calculate Pip Value**: The value of one pip in your account currency.
+    - `pipValue = tickValue * conversionRate`
+5.  **Calculate Lot Size**: The final position size in lots.
+    - `lotSize = riskAmount / (stopLossPips * pipValue * contractSize)`
 
 ## Exchange Rates API
 - Default endpoint used by the app (no API key required):
@@ -124,6 +157,5 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
 
 
