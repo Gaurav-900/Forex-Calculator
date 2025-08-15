@@ -27,33 +27,97 @@
 			font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif;
 			background:var(--bg);
 			color:var(--text);
-			display:flex;
-			align-items:center;
-			justify-content:center;
 			padding: 1rem;
 		}
 
-		.main-container {
-			display: flex;
-			justify-content: center;
-			align-items: flex-start;
-			padding: 1rem;
+		/* Main Grid Container */
+		.parent {
+			display: grid;
+			grid-template-columns: repeat(2, 1fr);
+			grid-template-rows: auto 1fr auto;
 			gap: 1.5rem;
-			flex-wrap: wrap;
-			width: 100%;
-			max-width: 1400px;
+			min-height: calc(100vh - 2rem);
 		}
 
+		/* Header */
+		.header-section {
+			grid-column: span 2 / span 2;
+			text-align: center;
+			padding: 0.5rem;
+		}
+
+		.main-head {
+			margin: 0;
+			font-size: 2rem;
+			font-weight: 700;
+			color: var(--text);
+			letter-spacing: -0.025em;
+			margin: 0;
+		}
+
+		/* Calculator Cards */
 		.calculator-card {
 			background: var(--card);
 			border:1px solid var(--border);
 			border-radius:16px;
 			box-shadow:var(--shadow);
-			padding: 2rem;
-			width: 100%;
-			max-width: 650px;
-			flex: 1;
-			min-width: 400px;
+			padding: 1.5rem;
+			display: flex;
+			flex-direction: column;
+			box-shadow: 0px 0px 28px 3px rgba(0,0,0,0.57);
+		}
+
+		.pnl-calculator {
+			grid-row-start: 2;
+		}
+
+		.lot-calculator {
+			grid-row-start: 2;
+		}
+
+		/* Footer */
+		.footer-section {
+			grid-column: span 2 / span 2;
+			text-align: center;
+			padding: 1rem;
+			color: var(--muted);
+			font-size: 14px;
+			border-top: 1px solid var(--border);
+		}
+
+		.footer-section a {
+			color: var(--accent);
+			text-decoration: none;
+		}
+
+		.footer-section span{
+			font-size: 17px;
+		}
+
+		.footer-section a:hover {
+			text-decoration: underline;
+		}
+
+		/* Responsive adjustments */
+		@media (max-width: 900px) {
+			.parent {
+				grid-template-columns: 1fr;
+				grid-template-rows: auto auto auto auto;
+			}
+			
+			.header-section,
+			.footer-section {
+				grid-column: span 1;
+			}
+			
+			.pnl-calculator,
+			.lot-calculator {
+				grid-row: auto;
+			}
+
+			.main-head {
+				font-size: 2rem;
+			}
 		}
 
 		#risk-percentage.input{
@@ -61,19 +125,17 @@
 			width: 50%;
 		}
 
-		@media (max-width: 900px) {
-			.main-container {
-				flex-direction: column;
-				align-items: center;
-			}
-			.calculator-card {
-				width: 100%;
-				max-width: 500px;
-			}
+		label[for="risk-percentage"]{
+			margin-left: 20px;
+		}
+
+		#calculate-lots-btn{	
+			margin-top: 3.7%;
 		}
 
 		.card-header {
 			margin-top: 0;
+			font-size: 22px;
 		}
 
 		.header{
@@ -187,8 +249,14 @@
 	</style>
 </head>
 <body>
-	<main class="main-container">
-		<div class="calculator-card">
+	<div class="parent">
+		<!-- Header -->
+		<div class="header-section">
+			<h1 class="main-head">GS-Forex P/L and Position Size Calculator</h1>
+		</div>
+
+		<!-- P/L Calculator -->
+		<div class="calculator-card pnl-calculator">
 			<div class="header">
 				<div>
 					<h1 class="title">Forex Profit & Loss Calculator</h1>
@@ -295,7 +363,8 @@
 			</div>
 		</div>
 
-		<div class="calculator-card">
+		<!-- Lot Size Calculator -->
+		<div class="calculator-card lot-calculator">
 			<h1 class="card-header">Lot Size Calculator</h1>
 			<div class="grid">
 				<div class="form-group">
@@ -314,11 +383,13 @@
 				<div class="form-group">
 					<label class="label" for="account-balance">Account Balance</label>
 					<input type="number" id="account-balance" name="account-balance" class="input" placeholder="10000">
+					<div class="hint">Enter Your Account balance on which's basis you want the risk to be measured (e.g., 5000, 10000)</div>
 				</div>
 
 				<div class="form-group">
 					<label class="label" for="risk-percentage">Risk %</label>
 					<input type="number" id="risk-percentage" name="risk-percentage" class="input" value="1" step="0.1" min="0.1">
+					<div class="hint">Enter the amount of percentage you want to risk of the account balance (e.g., 1%, 1.5%)</div>
 				</div>
 
 				<div class="form-group">
@@ -348,7 +419,14 @@
 			</div>
 			<div id="lots-loader" class="spinner"></div>
 		</div>
-	</main>
+
+		<!-- Footer -->
+		<div class="footer-section">
+			<span>Checkout My: <a href="https://gauravsharmaa.netlify.app">Website</a></span><br>
+			Copyright (c) 2025 Gaurav Sharma.<br>
+			Licensed under the MIT License. See <a href="https://opensource.org/licenses/MIT">LICENSE</a> for more details.<br>
+		</div>
+	</div>
 
 	<script>
 		(function(){
