@@ -30,17 +30,50 @@
 			display:flex;
 			align-items:center;
 			justify-content:center;
-			padding:24px;
+			padding: 1rem;
 		}
 
-		.container{
-			width:100%;
-			max-width:960px;
-			background:var(--card);
+		.main-container {
+			display: flex;
+			justify-content: center;
+			align-items: flex-start;
+			padding: 1rem;
+			gap: 1.5rem;
+			flex-wrap: wrap;
+			width: 100%;
+			max-width: 1400px;
+		}
+
+		.calculator-card {
+			background: var(--card);
 			border:1px solid var(--border);
 			border-radius:16px;
 			box-shadow:var(--shadow);
-			padding:28px;
+			padding: 2rem;
+			width: 100%;
+			max-width: 650px;
+			flex: 1;
+			min-width: 400px;
+		}
+
+		#risk-percentage.input{
+			margin-left: 20px;
+			width: 50%;
+		}
+
+		@media (max-width: 900px) {
+			.main-container {
+				flex-direction: column;
+				align-items: center;
+			}
+			.calculator-card {
+				width: 100%;
+				max-width: 500px;
+			}
+		}
+
+		.card-header {
+			margin-top: 0;
 		}
 
 		.header{
@@ -95,6 +128,15 @@
 		.row{display:flex; gap:12px;}
 		.row > *{flex:1;}
 
+		.price-row {
+			display: flex;
+			gap: 1rem;
+		}
+
+		.price-field {
+			flex: 1;
+		}
+
 		.button{
 			margin-top:8px;
 			width:100%;
@@ -123,6 +165,14 @@
 		.result-value.profit{color:var(--profit);} 
 		.result-value.loss{color:var(--loss);} 
 
+		.spinner, .hidden{display:none;}
+
+		#risk-amount-text {
+			font-size: 0.9rem;
+			color: #8892b0; /* Secondary Text Color */
+			margin-top: 8px;
+		}
+
 		.spinner{display:none; align-items:center; gap:10px; margin-top:12px; color:var(--muted); font-size:14px;}
 		.spinner .dot{
 			width:8px; height:8px; border-radius:50%; background:var(--accent);
@@ -137,116 +187,170 @@
 	</style>
 </head>
 <body>
-	<div class="container">
-		<div class="header">
-			<div>
-				<h1 class="title">Forex Profit & Loss Calculator</h1>
-				<div class="subtitle">Modern, responsive, navy & gold themed P/L calculator with live FX conversion</div>
+	<main class="main-container">
+		<div class="calculator-card">
+			<div class="header">
+				<div>
+					<h1 class="title">Forex Profit & Loss Calculator</h1>
+					<div class="subtitle">Modern, responsive, navy & gold themed P/L calculator with live FX conversion</div>
+				</div>
+				<span class="badge">ExchangeRate-API v6</span>
 			</div>
-			<span class="badge">ExchangeRate-API v6</span>
+
+			<div class="grid">
+				<div class="form-group">
+					<label class="label" for="accountCurrency">Account Currency</label>
+					<select id="accountCurrency" class="select" aria-label="Account Currency">
+						<option value="USD">USD — US Dollar</option>
+						<option value="EUR">EUR — Euro</option>
+						<option value="GBP">GBP — British Pound</option>
+						<option value="JPY">JPY — Japanese Yen</option>
+						<option value="AUD">AUD — Australian Dollar</option>
+						<option value="CAD">CAD — Canadian Dollar</option>
+						<option value="CHF">CHF — Swiss Franc</option>
+						<option value="NZD">NZD — New Zealand Dollar</option>
+					</select>
+					<div class="hint">Your trading account base currency</div>
+				</div>
+
+				<div class="form-group">
+					<label class="label">Currency Pair</label>
+					<div class="row">
+						<select id="baseCcy" class="select" aria-label="Base currency">
+							<option value="XAU">XAU</option>
+							<option value="XAG">XAG</option>
+							<option value="EUR">EUR</option>
+							<option value="USD">USD</option>
+							<option value="GBP">GBP</option>
+							<option value="JPY">JPY</option>
+							<option value="AUD">AUD</option>
+							<option value="CAD">CAD</option>
+							<option value="CHF">CHF</option>
+							<option value="NZD">NZD</option>
+						</select>
+						<select id="quoteCcy" class="select" aria-label="Quote currency">
+							<option value="USD">USD</option>
+							<option value="EUR">EUR</option>
+							<option value="GBP">GBP</option>
+							<option value="JPY">JPY</option>
+							<option value="AUD">AUD</option>
+							<option value="CAD">CAD</option>
+							<option value="CHF">CHF</option>
+							<option value="NZD">NZD</option>
+						</select>
+					</div>
+					<div class="hint">Select base and quote to form the pair (e.g., EUR + USD = EUR/USD)</div>
+				</div>
+
+				<div class="form-group">
+					<label class="label" for="positionSize">Position Size</label>
+					<div class="row">
+						<input id="positionSize" class="input" type="number" inputmode="decimal" min="0" step="0.0001" placeholder="e.g., 1" />
+						<select id="sizeType" class="select" aria-label="Size type">
+							<option value="lots">Standard Lots (100,000)</option>
+							<option value="mini">Mini Lots (10,000)</option>
+							<option value="micro">Micro Lots (1,000)</option>
+							<option value="units">Units</option>
+						</select>
+					</div>
+					<div class="hint">Enter trade size and units</div>
+				</div>
+
+				<div class="form-group">
+					<label class="label">Direction</label>
+					<div class="row">
+						<select id="direction" class="select" aria-label="Direction">
+							<option value="buy">Buy (Long)</option>
+							<option value="sell">Sell (Short)</option>
+						</select>
+						<div style="flex:2; display:flex; gap:12px;">
+							<input id="entryPrice" class="input" type="number" inputmode="decimal" min="0" step="0.00001" placeholder="Entry price" />
+							<input id="exitPrice" class="input" type="number" inputmode="decimal" min="0" step="0.00001" placeholder="Exit price" />
+						</div>
+					</div>
+					<div class="hint">Set direction, entry and exit prices</div>
+				</div>
+			</div>
+
+			<button id="calcBtn" class="button">Calculate</button>
+			<div id="loading" class="spinner" aria-live="polite" aria-busy="false">
+				<span class="dot"></span><span class="dot"></span><span class="dot"></span>
+				<span>Fetching live rates…</span>
+			</div>
+
+			<div class="result" id="result">
+				<div class="result-line">
+					<span class="result-label">P/L in account currency</span>
+					<span id="pnlAccount" class="result-value neutral">—</span>
+				</div>
+				<div class="result-line">
+					<span class="result-label">P/L in quote currency</span>
+					<span id="pnlQuote" class="result-value neutral">—</span>
+				</div>
+				<div class="result-line">
+					<span class="result-label">Conversion rate used</span>
+					<span id="rateUsed" class="result-value neutral">—</span>
+				</div>
+				<div class="footer">This tool converts the raw P/L from the pair's quote currency to your account currency using live rates from ExchangeRate-API.</div>
+			</div>
 		</div>
 
-		<div class="grid">
-			<div class="form-group">
-				<label class="label" for="accountCurrency">Account Currency</label>
-				<select id="accountCurrency" class="select" aria-label="Account Currency">
-					<option value="USD">USD — US Dollar</option>
-					<option value="EUR">EUR — Euro</option>
-					<option value="GBP">GBP — British Pound</option>
-					<option value="JPY">JPY — Japanese Yen</option>
-					<option value="AUD">AUD — Australian Dollar</option>
-					<option value="CAD">CAD — Canadian Dollar</option>
-					<option value="CHF">CHF — Swiss Franc</option>
-					<option value="NZD">NZD — New Zealand Dollar</option>
-				</select>
-				<div class="hint">Your trading account base currency</div>
-			</div>
-
-			<div class="form-group">
-				<label class="label">Currency Pair</label>
-				<div class="row">
-					<select id="baseCcy" class="select" aria-label="Base currency">
-						<option value="XAU">XAU</option>
-						<option value="XAG">XAG</option>
-						<option value="EUR">EUR</option>
-						<option value="USD">USD</option>
-						<option value="GBP">GBP</option>
-						<option value="JPY">JPY</option>
-						<option value="AUD">AUD</option>
-						<option value="CAD">CAD</option>
-						<option value="CHF">CHF</option>
-						<option value="NZD">NZD</option>
-					</select>
-					<select id="quoteCcy" class="select" aria-label="Quote currency">
-						<option value="USD">USD</option>
-						<option value="EUR">EUR</option>
-						<option value="GBP">GBP</option>
-						<option value="JPY">JPY</option>
-						<option value="AUD">AUD</option>
-						<option value="CAD">CAD</option>
-						<option value="CHF">CHF</option>
-						<option value="NZD">NZD</option>
-					</select>
+		<div class="calculator-card">
+			<h1 class="card-header">Lot Size Calculator</h1>
+			<div class="grid">
+				<div class="form-group">
+					<label class="label" for="ls-account-currency">Account Currency</label>
+					<select id="ls-account-currency" name="ls-account-currency" class="select"></select>
 				</div>
-				<div class="hint">Select base and quote to form the pair (e.g., EUR + USD = EUR/USD)</div>
-			</div>
 
-			<div class="form-group">
-				<label class="label" for="positionSize">Position Size</label>
-				<div class="row">
-					<input id="positionSize" class="input" type="number" inputmode="decimal" min="0" step="0.0001" placeholder="e.g., 1" />
-					<select id="sizeType" class="select" aria-label="Size type">
-						<option value="lots">Standard Lots (100,000)</option>
-						<option value="mini">Mini Lots (10,000)</option>
-						<option value="micro">Micro Lots (1,000)</option>
-						<option value="units">Units</option>
-					</select>
-				</div>
-				<div class="hint">Enter trade size and units</div>
-			</div>
-
-			<div class="form-group">
-				<label class="label">Direction</label>
-				<div class="row">
-					<select id="direction" class="select" aria-label="Direction">
-						<option value="buy">Buy (Long)</option>
-						<option value="sell">Sell (Short)</option>
-					</select>
-					<div style="flex:2; display:flex; gap:12px;">
-						<input id="entryPrice" class="input" type="number" inputmode="decimal" min="0" step="0.00001" placeholder="Entry price" />
-						<input id="exitPrice" class="input" type="number" inputmode="decimal" min="0" step="0.00001" placeholder="Exit price" />
+				<div class="form-group">
+					<label class="label">Currency Pair</label>
+					<div class="row">
+						<select id="ls-base-ccy" class="select" aria-label="Base currency"></select>
+						<select id="ls-quote-ccy" class="select" aria-label="Quote currency"></select>
 					</div>
 				</div>
-				<div class="hint">Set direction, entry and exit prices</div>
-			</div>
-		</div>
 
-		<button id="calcBtn" class="button">Calculate</button>
-		<div id="loading" class="spinner" aria-live="polite" aria-busy="false">
-			<span class="dot"></span><span class="dot"></span><span class="dot"></span>
-			<span>Fetching live rates…</span>
-		</div>
+				<div class="form-group">
+					<label class="label" for="account-balance">Account Balance</label>
+					<input type="number" id="account-balance" name="account-balance" class="input" placeholder="10000">
+				</div>
 
-		<div class="result" id="result">
-			<div class="result-line">
-				<span class="result-label">P/L in account currency</span>
-				<span id="pnlAccount" class="result-value neutral">—</span>
+				<div class="form-group">
+					<label class="label" for="risk-percentage">Risk %</label>
+					<input type="number" id="risk-percentage" name="risk-percentage" class="input" value="1" step="0.1" min="0.1">
+				</div>
+
+				<div class="form-group">
+					<label class="label">Entry & Stop Loss</label>
+					<div class="row">
+						<input type="number" id="ls-entry-price" name="ls-entry-price" class="input" step="0.00001" placeholder="1.12500">
+						<input type="number" id="stop-loss-price" name="stop-loss-price" class="input" step="0.00001" placeholder="1.12000">
+					</div>
+				</div>
 			</div>
-			<div class="result-line">
-				<span class="result-label">P/L in quote currency</span>
-				<span id="pnlQuote" class="result-value neutral">—</span>
+
+			<button id="calculate-lots-btn" class="button">Calculate Lot Size</button>
+
+			<div id="lots-result-container" class="result hidden">
+				<div class="result-line">
+					<span class="result-label">Calculated Lot Size</span>
+					<span id="lots-result-text" class="result-value neutral">—</span>
+				</div>
+				<div class="result-line">
+					<span class="result-label">Amount at Risk</span>
+					<span id="risk-amount-text" class="result-value neutral">—</span>
+				</div>
 			</div>
-			<div class="result-line">
-				<span class="result-label">Conversion rate used</span>
-				<span id="rateUsed" class="result-value neutral">—</span>
-			</div>
-			<div class="footer">This tool converts the raw P/L from the pair's quote currency to your account currency using live rates from ExchangeRate-API.</div>
+			<div id="lots-loader" class="spinner"></div>
 		</div>
-	</div>
+	</main>
 
 	<script>
 		(function(){
 			const getEl = (id) => document.getElementById(id);
+
+			// P/L Calculator Elements
 			const accountCurrencyEl = getEl('accountCurrency');
 			const baseCcyEl = getEl('baseCcy');
 			const quoteCcyEl = getEl('quoteCcy');
@@ -261,6 +365,46 @@
 			const pnlQuoteEl = getEl('pnlQuote');
 			const rateUsedEl = getEl('rateUsed');
 
+			// Lot Size Calculator Elements
+			const lsAccountCurrencyEl = getEl('ls-account-currency');
+			const lsBaseCcyEl = getEl('ls-base-ccy');
+			const lsQuoteCcyEl = getEl('ls-quote-ccy');
+			const accountBalanceEl = getEl('account-balance');
+			const riskPercentageEl = getEl('risk-percentage');
+			const lsEntryPriceEl = getEl('ls-entry-price');
+			const stopLossPriceEl = getEl('stop-loss-price');
+			const calculateLotsBtn = getEl('calculate-lots-btn');
+			const lotsResultContainer = getEl('lots-result-container');
+			const lotsResultText = getEl('lots-result-text');
+			const riskAmountText = getEl('risk-amount-text');
+			const lotsLoader = getEl('lots-loader');
+
+			const currencies = { 
+				USD: 'US Dollar', EUR: 'Euro', GBP: 'British Pound', JPY: 'Japanese Yen', 
+				AUD: 'Australian Dollar', CAD: 'Canadian Dollar', CHF: 'Swiss Franc', NZD: 'New Zealand Dollar' 
+			};
+			const majorCurrencies = ['USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD', 'CHF', 'NZD'];
+			const allCurrencies = ['XAU', 'XAG', ...majorCurrencies];
+
+			function populateDropdown(selectEl, options, isCurrency) {
+				options.forEach(value => {
+					const text = isCurrency ? `${value} — ${currencies[value]}` : value;
+					const option = new Option(text, value);
+					selectEl.add(option);
+				});
+			}
+
+			function initializeDropdowns() {
+				populateDropdown(accountCurrencyEl, majorCurrencies, true);
+				populateDropdown(lsAccountCurrencyEl, majorCurrencies, true);
+				populateDropdown(baseCcyEl, allCurrencies, false);
+				populateDropdown(quoteCcyEl, majorCurrencies, false);
+				populateDropdown(lsBaseCcyEl, allCurrencies, false);
+				populateDropdown(lsQuoteCcyEl, majorCurrencies, false);
+			}
+
+			initializeDropdowns();
+
 			// Default values for quick demo
 			baseCcyEl.value = 'EUR';
 			quoteCcyEl.value = 'USD';
@@ -269,6 +413,56 @@
 			sizeTypeEl.value = 'lots';
 			entryPriceEl.value = '1.08500';
 			exitPriceEl.value = '1.09500';
+
+			calculateLotsBtn.addEventListener('click', calculateLotSize);
+
+			async function calculateLotSize() {
+				const accountBalance = parseFloat(accountBalanceEl.value);
+				const riskPercentage = parseFloat(riskPercentageEl.value);
+				const entryPrice = parseFloat(lsEntryPriceEl.value);
+				const stopLossPrice = parseFloat(stopLossPriceEl.value);
+				const accountCurrency = lsAccountCurrencyEl.value;
+				const baseCcy = lsBaseCcyEl.value;
+				const quoteCcy = lsQuoteCcyEl.value;
+
+				if (isNaN(accountBalance) || isNaN(riskPercentage) || isNaN(entryPrice) || isNaN(stopLossPrice)) {
+					alert('Please fill in all fields with valid numbers.');
+					return;
+				}
+
+				lotsLoader.style.display = 'flex';
+				lotsResultContainer.classList.add('hidden');
+
+				try {
+					const response = await fetch(`https://api.exchangerate-api.com/v4/latest/${quoteCcy}`);
+					const data = await response.json();
+					const rates = data.rates;
+
+					const riskAmount = accountBalance * (riskPercentage / 100);
+					const contractSize = getContractSize(baseCcy);
+					const tickValue = (baseCcy === 'XAU' || baseCcy === 'XAG') ? 0.01 : (quoteCcy.includes('JPY') ? 0.01 : 0.0001);
+					const stopLossPips = Math.abs(entryPrice - stopLossPrice) / tickValue;
+
+					const conversionRate = rates[accountCurrency] || 1;
+					const pipValue = tickValue * conversionRate;
+					const lotSize = riskAmount / (stopLossPips * pipValue * contractSize);
+
+					lotsResultText.textContent = `${lotSize.toFixed(2)}`;
+					riskAmountText.textContent = `${formatMoney(riskAmount, accountCurrency)}`;
+					lotsResultContainer.classList.remove('hidden');
+				} catch (error) {
+					console.error('Error calculating lot size:', error);
+					alert('Failed to fetch exchange rates. Please try again later.');
+				} finally {
+					lotsLoader.style.display = 'none';
+				}
+			}
+
+			function getContractSize(baseCurrency) {
+				if (baseCurrency === 'XAU') return 100; // 100 troy ounces
+				if (baseCurrency === 'XAG') return 5000; // 5000 troy ounces
+				return 100000; // Standard lot for forex
+			}
 
 			const currencyToSymbol = (code) => {
 				const map = { USD:'$', EUR:'€', GBP:'£', JPY:'¥', AUD:'A$', CAD:'C$', CHF:'CHF', NZD:'NZ$' };
